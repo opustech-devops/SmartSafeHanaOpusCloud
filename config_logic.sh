@@ -68,7 +68,7 @@ fi
 request_password "$DATABASE" "$INSTANCE_NAME"
 
 # Configura os hdbuserstores
-handle_hdbuserstore
+handle_hdbuserstore "$HDBUSERSTORE_NAME" "$HOSTNAME" "$PORT" "$DATABASE" "$DB_USER" "$DB_PASSWORD" "$USERNAME_LINUX"
 
 HDBUSERSTORE_NAME+=("$HDBUSERSTORE_SYSTEMDB")
 
@@ -131,10 +131,10 @@ if [[ "$CONFIGURE_TENANTS" =~ ^[sS]$ ]]; then
 
         if [[ "$CONFIGURE" =~ ^[sS]$ ]]; then
             # Chama a função para garantir que a senha seja válida
-            request_password
+            request_password "$DATABASE" "$INSTANCE_NAME"
 
             # Configura os hdbuserstores
-            handle_hdbuserstore
+            handle_hdbuserstore "$HDBUSERSTORE_NAME" "$HOSTNAME" "$PORT" "$DATABASE" "$DB_USER" "$DB_PASSWORD" "$USERNAME_LINUX"
 
             # Verifica se o schema SBOCOMMON existe no banco
             check_sbo_query="SELECT 1 FROM SCHEMAS WHERE SCHEMA_NAME = 'SBOCOMMON';"
