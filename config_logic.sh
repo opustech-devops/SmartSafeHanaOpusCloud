@@ -8,7 +8,9 @@ DATABASE=SYSTEMDB
 HDBUSERSTORE_NAME="SmartSafeOpusTech.$DATABASE"
 
 # Solicitação de confirmação ****************************************************************************************************************
-if dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --yesno "Você concorda com os termos acima e deseja continuar?" 10 50; then
+dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --msgbox "\Zb\Z4Este é o assistente gratuito para backup de SAP HANA da OpusTech.\nDesenvolvido para auxiliar na manutenção dos backups de ambientes que utilizam banco de dados HANA, como SAP Business One, S/4 HANA, ECC on HANA, entre outros.\n\nEste script é distribuído gratuitamente pela equipe de DBA's da OpusTech, para facilitar a administração, melhorar a disponibilidade e a resiliência de um dos sistemas mais críticos de uma organização: o seu ERP.\n\n\Z1A utilização deste script não implica em qualquer responsabilidade ou ônus para a OpusTech e seus especialistas. Não há garantia de integridade dos dados gerados nem de sua recuperabilidade.\n\nÉ imprescindível que outros fatores sejam considerados, como: Persistência dos dados em mais locais; Testes periódicos dos backups; Acompanhamento da correta execução do processo.\n\n\Z0Versão 2.2 - 04/01/2026" 20 80
+
+if dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --yesno "\Zb\Z4Você concorda com os termos acima e deseja continuar?" 8 50; then
     echo -e "${GREEN}Iniciando SmartSafeHanaOpusCloud: ${NC}"
     # Continue o script
     sleep 0
@@ -22,19 +24,19 @@ validate_instance_name "$INSTANCE_NAME"
 validate_instance_number "$INSTANCE_NUMBER"
 
 # Menu para usar valores pré-definidos
-dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --radiolist "Deseja usar os valores pré-definidos detectados?\n\nHostname: $HOSTNAME\nInstância: $INSTANCE_NAME\nNúmero: $INSTANCE_NUMBER" 15 50 2 1 "Sim" on 2 "Não" off 2> /tmp/use_predefined
+dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --radiolist "\Zb\Z4Deseja usar os valores pré-definidos detectados?\n\n\Z0Hostname: $HOSTNAME\nInstância: $INSTANCE_NAME\nNúmero: $INSTANCE_NUMBER" 17 55 2 1 "\ZbSim" on 2 "\ZbNão" off 2> /tmp/use_predefined
 USE_PREDEFINED=$(cat /tmp/use_predefined)
 rm /tmp/use_predefined
 
 if [ "$USE_PREDEFINED" = "2" ]; then
     # Form para inserir valores customizados
     exec 3>&1
-    VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --form "Insira os parâmetros de configuração:" 20 60 0 \
-        "Hostname:" 1 1 "$HOSTNAME" 1 20 30 0 \
-        "Nome da Instância:" 2 1 "$INSTANCE_NAME" 2 20 30 0 \
-        "Número da Instância:" 3 1 "$INSTANCE_NUMBER" 3 20 30 0 \
-        "Usuário SYSTEMDB:" 4 1 "SYSTEM" 4 20 30 0 \
-        "Senha SYSTEMDB:" 5 1 "" 5 20 30 0 \
+    VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --form "\Zb\Z4Insira os parâmetros de configuração:" 22 65 0 \
+        "\ZbHostname:" 1 1 "$HOSTNAME" 1 20 35 0 \
+        "\ZbNome da Instância:" 2 1 "$INSTANCE_NAME" 2 20 35 0 \
+        "\ZbNúmero da Instância:" 3 1 "$INSTANCE_NUMBER" 3 20 35 0 \
+        "\ZbUsuário SYSTEMDB:" 4 1 "SYSTEM" 4 20 35 0 \
+        "\ZbSenha SYSTEMDB:" 5 1 "" 5 20 35 1 \
         2>&1 1>&3)
     exec 3>&-
     
@@ -53,9 +55,9 @@ else
     PORT="3${INSTANCE_NUMBER}13"
     # Form para usuário e senha apenas
     exec 3>&1
-    VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --form "Insira as credenciais do SYSTEMDB:" 15 50 0 \
-        "Usuário SYSTEMDB:" 1 1 "SYSTEM" 1 20 30 0 \
-        "Senha SYSTEMDB:" 2 1 "" 2 20 30 0 \
+    VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --form "\Zb\Z4Insira as credenciais do SYSTEMDB:" 17 55 0 \
+        "\ZbUsuário SYSTEMDB:" 1 1 "SYSTEM" 1 20 30 0 \
+        "\ZbSenha SYSTEMDB:" 2 1 "" 2 20 30 1 \
         2>&1 1>&3)
     exec 3>&-
     
@@ -102,7 +104,7 @@ echo
 HDBUSERSTORE_NAMES=()
 
 # Validação para configurar os backups dos tenants *****************************************************************************************************************
-dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --radiolist "Deseja configurar os backups dos tenants?\n(Nota: os dados da empresa ficam salvos dentro dos tenants)\n\nTenants encontrados: $DATABASE_LIST" 15 60 2 1 "Sim" off 2 "Não" on 2> /tmp/configure_tenants
+dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --radiolist "\Zb\Z4Deseja configurar os backups dos tenants?\n\Z0(Nota: os dados da empresa ficam salvos dentro dos tenants)\n\nTenants encontrados: $DATABASE_LIST" 17 65 2 1 "\ZbSim" off 2 "\ZbNão" on 2> /tmp/configure_tenants
 CONFIGURE_TENANTS=$(cat /tmp/configure_tenants)
 rm /tmp/configure_tenants
 
@@ -111,16 +113,16 @@ if [ "$CONFIGURE_TENANTS" = "1" ]; then
     IFS=$'\n' read -rd '' -a DATABASE_ARRAY <<<"$DATABASE_LIST"
     for DATABASE in "${DATABASE_ARRAY[@]}"; do
         DATABASE=$(echo "$DATABASE" | xargs) # Remove espaços em branco
-        dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --radiolist "Deseja configurar o backup do banco $DATABASE?" 10 50 2 1 "Sim" off 2 "Não" on 2> /tmp/configure
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --radiolist "\Zb\Z4Deseja configurar o backup do banco $DATABASE?" 12 55 2 1 "\ZbSim" off 2 "\ZbNão" on 2> /tmp/configure
         CONFIGURE=$(cat /tmp/configure)
         rm /tmp/configure
 
         if [ "$CONFIGURE" = "1" ]; then
             # Form para credenciais do tenant
             exec 3>&1
-            VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --form "Credenciais para $DATABASE:" 15 50 0 \
-                "Usuário:" 1 1 "SYSTEM" 1 20 30 0 \
-                "Senha:" 2 1 "" 2 20 30 0 \
+            VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --form "\Zb\Z4Credenciais para $DATABASE:" 17 55 0 \
+                "\ZbUsuário:" 1 1 "SYSTEM" 1 20 30 0 \
+                "\ZbSenha:" 2 1 "" 2 20 30 1 \
                 2>&1 1>&3)
             exec 3>&-
             
