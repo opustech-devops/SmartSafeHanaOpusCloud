@@ -150,7 +150,5 @@ done
 ALL_COMPANIES=$(echo "$ALL_COMPANIES" | tr -s ' ' | sed 's/^ *//;s/ *$//')
 
 dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "hdbuserstore configurado com sucesso para SYSTEMDB e todos os tenants." 6 60
-
-dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --msgbox "\Zb\Z4Hoje o seu banco está configurado para fazer backup de dados na seguinte diretório:\n\n\Z0$DATA_BACKUP_PATH" 8 60
  
  
