@@ -10,7 +10,7 @@ DATABASE=SYSTEMDB
 log "Banco padrão: $DATABASE"
 
 # Cria ou atualiza a entrada do hdbuserstore para o SYSTEMDB
-HDBUSERSTORE_NAME="SmartSafeOpusTech.$DATABASE"
+HDBUSERSTORE_NAME="SmartSafeOpusTech_$DATABASE"
 log "Nome do hdbuserstore para SYSTEMDB: $HDBUSERSTORE_NAME"
 
 # Solicitação de confirmação ****************************************************************************************************************
@@ -72,22 +72,22 @@ HDBUSERSTORE_NAMES=()
 
 # Configura o hdbuserstore para o tenant principal
 MAIN_TENANT="$INSTANCE_NAME"
-if ! handle_hdbuserstore "SmartSafeOpusTech.$MAIN_TENANT" "$HOSTNAME" "$PORT" "$MAIN_TENANT" "$TENANT_USER" "$TENANT_PASSWORD" "$USERNAME_LINUX"; then
+if ! handle_hdbuserstore "SmartSafeOpusTech_$MAIN_TENANT" "$HOSTNAME" "$PORT" "$MAIN_TENANT" "$TENANT_USER" "$TENANT_PASSWORD" "$USERNAME_LINUX"; then
     dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "Falha na configuração do hdbuserstore para $MAIN_TENANT. Verifique as credenciais." 7 60
     exit 1
 fi
-log "Configuração e validação concluídas com sucesso para SmartSafeOpusTech.$MAIN_TENANT"
+log "Configuração e validação concluídas com sucesso para SmartSafeOpusTech_$MAIN_TENANT"
 
 # Verifica se o schema SBOCOMMON existe no banco para o tenant principal
 check_sbo_query="SELECT 1 FROM SCHEMAS WHERE SCHEMA_NAME = 'SBOCOMMON';"
-result=$(execute_sql "SmartSafeOpusTech.$MAIN_TENANT" "$check_sbo_query" "$USERNAME_LINUX")
+result=$(execute_sql "SmartSafeOpusTech_$MAIN_TENANT" "$check_sbo_query" "$USERNAME_LINUX")
 
 if [[ -n "$result" ]]; then
     dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Tenant $MAIN_TENANT roda SAP Business One. Verificando empresas..." 5 50
 
     # Executa query para pegar os nomes das bases no SBOCOMMON.SRGC
     select_db_query="SELECT \"dbName\" FROM SBOCOMMON.SRGC;"
-    db_names=$(execute_sql "SmartSafeOpusTech.$MAIN_TENANT" "$select_db_query" "$USERNAME_LINUX")
+    db_names=$(execute_sql "SmartSafeOpusTech_$MAIN_TENANT" "$select_db_query" "$USERNAME_LINUX")
     # Limpar espaços e quebras de linha
     db_names_clean=$(echo "$db_names" | tr -d '\n' | tr -s ' ' | sed 's/^ *//;s/ *$//')
 
@@ -97,7 +97,7 @@ if [[ -n "$result" ]]; then
 fi
 
 log "Detectando databases tenants adicionais..."
-DATABASE_LIST=$(execute_sql "$HDBUSERSTORE_NAME" "SELECT DATABASE_NAME FROM M_DATABASES WHERE DATABASE_NAME != 'SYSTEMDB' AND DATABASE_NAME != '$INSTANCE_NAME';" "$USERNAME_LINUX")
+DATABASE_LIST=$(execute_sql "SmartSafeOpusTech_$DATABASE" "SELECT DATABASE_NAME FROM M_DATABASES WHERE DATABASE_NAME != 'SYSTEMDB' AND DATABASE_NAME != '$INSTANCE_NAME';" "$USERNAME_LINUX")
 log "Databases tenants adicionais detectados: $DATABASE_LIST"
 
 # Configura backups para tenants adicionais
@@ -117,20 +117,20 @@ for DATABASE in "${DATABASE_ARRAY[@]}"; do
     ADD_PASSWORD=$(echo "$VALUES" | sed -n '2p')
 
     # Configura os hdbuserstores para o tenant adicional
-    if ! handle_hdbuserstore "SmartSafeOpusTech.$DATABASE" "$HOSTNAME" "$PORT" "$DATABASE" "$ADD_USER" "$ADD_PASSWORD" "$USERNAME_LINUX"; then
+    if ! handle_hdbuserstore "SmartSafeOpusTech_$DATABASE" "$HOSTNAME" "$PORT" "$DATABASE" "$ADD_USER" "$ADD_PASSWORD" "$USERNAME_LINUX"; then
         dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "Falha na configuração do hdbuserstore para $DATABASE. Verifique as credenciais." 7 60
         exit 1
     fi
-    log "Configuração e validação concluídas com sucesso para SmartSafeOpusTech.$DATABASE"
+    log "Configuração e validação concluídas com sucesso para SmartSafeOpusTech_$DATABASE"
 
     # Verifica se o schema SBOCOMMON existe no banco
-    result=$(execute_sql "SmartSafeOpusTech.$DATABASE" "$check_sbo_query" "$USERNAME_LINUX")
+    result=$(execute_sql "SmartSafeOpusTech_$DATABASE" "$check_sbo_query" "$USERNAME_LINUX")
 
     if [[ -n "$result" ]]; then
         dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Tenant $DATABASE roda SAP Business One. Verificando empresas..." 5 50
 
         # Executa query para pegar os nomes das bases no SBOCOMMON.SRGC
-        db_names=$(execute_sql "SmartSafeOpusTech.$DATABASE" "$select_db_query" "$USERNAME_LINUX")
+        db_names=$(execute_sql "SmartSafeOpusTech_$DATABASE" "$select_db_query" "$USERNAME_LINUX")
         # Limpar espaços e quebras de linha
         db_names_clean=$(echo "$db_names" | tr -d '\n' | tr -s ' ' | sed 's/^ *//;s/ *$//')
 
@@ -150,5 +150,7 @@ done
 ALL_COMPANIES=$(echo "$ALL_COMPANIES" | tr -s ' ' | sed 's/^ *//;s/ *$//')
 
 dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "hdbuserstore configurado com sucesso para SYSTEMDB e todos os tenants." 6 60
+
+dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --msgbox "\Zb\Z4Hoje o seu banco está configurado para fazer backup de dados na seguinte diretório:\n\n\Z0$DATA_BACKUP_PATH" 8 60
  
  
