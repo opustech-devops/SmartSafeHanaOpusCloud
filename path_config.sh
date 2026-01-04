@@ -81,8 +81,8 @@ while true; do
             # Remove barras duplicadas do caminho
             DATA_BACKUP_PATH=$(echo "$DATA_BACKUP_PATH" | sed 's|//|/|g')
 
-            execute_sql "SmartSafeOpusTech.SYSTEMDB" "ALTER SYSTEM ALTER CONFIGURATION ('global.ini', 'SYSTEM') SET ('persistence', 'basepath_databackup') = '$DATA_BACKUP_PATH/data' WITH RECONFIGURE;"
-            execute_sql "SmartSafeOpusTech.SYSTEMDB" "ALTER SYSTEM ALTER CONFIGURATION ('global.ini', 'SYSTEM') SET ('persistence', 'basepath_logbackup') = '$DATA_BACKUP_PATH/log' WITH RECONFIGURE;"
+            execute_sql "SmartSafeOpusTech.SYSTEMDB" "ALTER SYSTEM ALTER CONFIGURATION ('global.ini', 'SYSTEM') SET ('persistence', 'basepath_databackup') = '$DATA_BACKUP_PATH/data' WITH RECONFIGURE;" "$USERNAME_LINUX"
+            execute_sql "SmartSafeOpusTech.SYSTEMDB" "ALTER SYSTEM ALTER CONFIGURATION ('global.ini', 'SYSTEM') SET ('persistence', 'basepath_logbackup') = '$DATA_BACKUP_PATH/log' WITH RECONFIGURE;" "$USERNAME_LINUX"
             break  # Sai do loop principal após todas as verificações e criação do diretório
         else
             echo -e "${BLUE}Alteração do destino do backup cancelada. Vamos tentar novamente.${NC}"

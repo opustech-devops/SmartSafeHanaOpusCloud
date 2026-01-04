@@ -24,8 +24,8 @@ else
 fi
 
 # Valida os valores coletados
-validate_instance_name
-validate_instance_number
+validate_instance_name "$INSTANCE_NAME"
+validate_instance_number "$INSTANCE_NUMBER"
 echo
 echo -e "${BLUE}Identificamos automaticamente os seguintes dados nesse servidor.${NC}"
 echo
@@ -52,20 +52,20 @@ if [[ "$USE_PREDEFINED" =~ ^[nN]$ ]]; then
     echo -e "${PURPLE}Informe o número da instância [default: $INSTANCE_NUMBER]: ${NC}"
     read -p "--->    " INSTANCE_NUMBER
     INSTANCE_NUMBER=${INSTANCE_NUMBER:-00}
-    validate_instance_number
+    validate_instance_number "$INSTANCE_NUMBER"
 
     PORT="3${INSTANCE_NUMBER}13"
 
     echo -e "${PURPLE}Informe o nome da instância [default: $INSTANCE_NAME]: ${NC}"
     read -p "--->    " INSTANCE_NAME
     INSTANCE_NAME=${INSTANCE_NAME:-HDB}
-    validate_instance_name
+    validate_instance_name "$INSTANCE_NAME"
 else
     PORT="3${INSTANCE_NUMBER}13"
 fi
 
 # Chama a função para garantir que a senha seja válida
-request_password
+request_password "$DATABASE" "$INSTANCE_NAME"
 
 # Configura os hdbuserstores
 handle_hdbuserstore
@@ -78,7 +78,7 @@ DIR_INSTANCE=$(su - $USERNAME_LINUX -c 'echo $DIR_INSTANCE')
 DIR_INSTANCE=$(echo "$DIR_INSTANCE" | xargs) # Remove espaços em branco
 
 # Obtém os diretórios de backup configuradas
-DATA_BACKUP_PATH=$(execute_sql "SmartSafeOpusTech.SYSTEMDB" "SELECT VALUE FROM SYS.M_CONFIGURATION_PARAMETER_VALUES WHERE KEY = 'basepath_databackup' and VALUE IS NOT NULL limit 1")
+DATA_BACKUP_PATH=$(execute_sql "SmartSafeOpusTech.SYSTEMDB" "SELECT VALUE FROM SYS.M_CONFIGURATION_PARAMETER_VALUES WHERE KEY = 'basepath_databackup' and VALUE IS NOT NULL limit 1" "$USERNAME_LINUX")
 
 # Remove espaços em branco extras
 DATA_BACKUP_PATH=$(echo "$DATA_BACKUP_PATH" | xargs)
@@ -93,7 +93,7 @@ DATA_BACKUP_PATH=$(echo "$DATA_BACKUP_PATH" | sed 's/\/\(data\|log\|Dump\/data\|
 SCHEMA_BACKUP_PATH="$DATA_BACKUP_PATH/Empresas"
 
 # Comando SQL para listar bancos de dados
-DATABASE_LIST=$(execute_sql "SmartSafeOpusTech.SYSTEMDB" "SELECT DATABASE_NAME FROM M_DATABASES WHERE DATABASE_NAME <> 'SYSTEMDB'")
+DATABASE_LIST=$(execute_sql "SmartSafeOpusTech.SYSTEMDB" "SELECT DATABASE_NAME FROM M_DATABASES WHERE DATABASE_NAME <> 'SYSTEMDB'" "$USERNAME_LINUX")
 DATABASE_LIST=$(echo "$DATABASE_LIST" | tr -d ' ') # Remove todos os espaços
 
 # Exibe os bancos de dados encontrados
@@ -138,7 +138,7 @@ if [[ "$CONFIGURE_TENANTS" =~ ^[sS]$ ]]; then
 
             # Verifica se o schema SBOCOMMON existe no banco
             check_sbo_query="SELECT 1 FROM SCHEMAS WHERE SCHEMA_NAME = 'SBOCOMMON';"
-            result=$(execute_sql "SmartSafeOpusTech.$DATABASE" "$check_sbo_query")
+            result=$(execute_sql "SmartSafeOpusTech.$DATABASE" "$check_sbo_query" "$USERNAME_LINUX")
 
             if [[ -n "$result" ]]; then
                 echo
@@ -147,7 +147,7 @@ if [[ "$CONFIGURE_TENANTS" =~ ^[sS]$ ]]; then
 
                 # Executa query para pegar os nomes das bases no SBOCOMMON.SRGC
                 select_db_query="SELECT \"dbName\" FROM SBOCOMMON.SRGC;"
-                db_names=$(execute_sql "SmartSafeOpusTech.$DATABASE" "$select_db_query")
+                db_names=$(execute_sql "SmartSafeOpusTech.$DATABASE" "$select_db_query" "$USERNAME_LINUX")
                 echo
                 echo -e "${BLUE}As seguintes empresas foram encontradas e serão exportadas:${NC}"
                 echo "$db_names"
