@@ -8,7 +8,7 @@ DATABASE=SYSTEMDB
 HDBUSERSTORE_NAME="SmartSafeOpusTech.$DATABASE"
 
 # Solicitação de confirmação ****************************************************************************************************************
-if dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --yesno "Você concorda com os termos acima e deseja continuar?" 10 50; then
+if dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --yesno "Você concorda com os termos acima e deseja continuar?" 10 50; then
     echo -e "${GREEN}Iniciando SmartSafeHanaOpusCloud: ${NC}"
     # Continue o script
     sleep 0
@@ -20,26 +20,49 @@ fi
 # Valida os valores coletados
 validate_instance_name "$INSTANCE_NAME"
 validate_instance_number "$INSTANCE_NUMBER"
-dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --msgbox "Identificamos automaticamente os seguintes dados nesse servidor.\n\nHostname: $HOSTNAME\nNome da instância: $INSTANCE_NAME\nNúmero da instância: $INSTANCE_NUMBER" 12 50
 
-# Solicita confirmação do usuário para os valores coletados *******************************************************************************************************
-dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --menu "Deseja usar esses valores?" 10 50 2 1 "Sim" 2 "Não" 2> /tmp/use_predefined
+# Menu para usar valores pré-definidos
+dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --radiolist "Deseja usar os valores pré-definidos detectados?\n\nHostname: $HOSTNAME\nInstância: $INSTANCE_NAME\nNúmero: $INSTANCE_NUMBER" 15 50 2 1 "Sim" on 2 "Não" off 2> /tmp/use_predefined
 USE_PREDEFINED=$(cat /tmp/use_predefined)
 rm /tmp/use_predefined
-echo
-if [ "$USE_PREDEFINED" = "1" ]; then
-    PORT="3${INSTANCE_NUMBER}13"
-else
-    HOSTNAME=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o hostname do servidor" 10 50 "$HOSTNAME" 2>&1)
-    INSTANCE_NUMBER=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o número da instância" 10 50 "$INSTANCE_NUMBER" 2>&1)
+
+if [ "$USE_PREDEFINED" = "2" ]; then
+    # Form para inserir valores customizados
+    exec 3>&1
+    VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --form "Insira os parâmetros de configuração:" 20 60 0 \
+        "Hostname:" 1 1 "$HOSTNAME" 1 20 30 0 \
+        "Nome da Instância:" 2 1 "$INSTANCE_NAME" 2 20 30 0 \
+        "Número da Instância:" 3 1 "$INSTANCE_NUMBER" 3 20 30 0 \
+        "Usuário SYSTEMDB:" 4 1 "SYSTEM" 4 20 30 0 \
+        "Senha SYSTEMDB:" 5 1 "" 5 20 30 0 \
+        2>&1 1>&3)
+    exec 3>&-
+    
+    # Parse the values
+    HOSTNAME=$(echo "$VALUES" | sed -n '1p')
+    INSTANCE_NAME=$(echo "$VALUES" | sed -n '2p')
+    INSTANCE_NUMBER=$(echo "$VALUES" | sed -n '3p')
+    DB_USER=$(echo "$VALUES" | sed -n '4p')
+    DB_PASSWORD=$(echo "$VALUES" | sed -n '5p')
+    
+    validate_instance_name "$INSTANCE_NAME"
     validate_instance_number "$INSTANCE_NUMBER"
     PORT="3${INSTANCE_NUMBER}13"
-    INSTANCE_NAME=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o nome da instância" 10 50 "$INSTANCE_NAME" 2>&1)
-    validate_instance_name "$INSTANCE_NAME"
+    USERNAME_LINUX=$(echo "${INSTANCE_NAME,,}adm")
+else
+    PORT="3${INSTANCE_NUMBER}13"
+    # Form para usuário e senha apenas
+    exec 3>&1
+    VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --form "Insira as credenciais do SYSTEMDB:" 15 50 0 \
+        "Usuário SYSTEMDB:" 1 1 "SYSTEM" 1 20 30 0 \
+        "Senha SYSTEMDB:" 2 1 "" 2 20 30 0 \
+        2>&1 1>&3)
+    exec 3>&-
+    
+    DB_USER=$(echo "$VALUES" | sed -n '1p')
+    DB_PASSWORD=$(echo "$VALUES" | sed -n '2p')
+    USERNAME_LINUX=$(echo "${INSTANCE_NAME,,}adm")
 fi
-
-# Chama a função para garantir que a senha seja válida
-request_password "$DATABASE" "$INSTANCE_NAME"
 
 # Configura os hdbuserstores
 handle_hdbuserstore "$HDBUSERSTORE_NAME" "$HOSTNAME" "$PORT" "$DATABASE" "$DB_USER" "$DB_PASSWORD" "$USERNAME_LINUX"
@@ -79,7 +102,7 @@ echo
 HDBUSERSTORE_NAMES=()
 
 # Validação para configurar os backups dos tenants *****************************************************************************************************************
-dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --menu "Deseja configurar os backups dos tenants? (Nota: os dados da empresa ficam salvos dentro dos tenants)" 12 60 2 1 "Sim" 2 "Não" 2> /tmp/configure_tenants
+dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --radiolist "Deseja configurar os backups dos tenants?\n(Nota: os dados da empresa ficam salvos dentro dos tenants)\n\nTenants encontrados: $DATABASE_LIST" 15 60 2 1 "Sim" off 2 "Não" on 2> /tmp/configure_tenants
 CONFIGURE_TENANTS=$(cat /tmp/configure_tenants)
 rm /tmp/configure_tenants
 
@@ -88,16 +111,24 @@ if [ "$CONFIGURE_TENANTS" = "1" ]; then
     IFS=$'\n' read -rd '' -a DATABASE_ARRAY <<<"$DATABASE_LIST"
     for DATABASE in "${DATABASE_ARRAY[@]}"; do
         DATABASE=$(echo "$DATABASE" | xargs) # Remove espaços em branco
-        dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --menu "Deseja configurar o backup do banco $DATABASE?" 10 50 2 1 "Sim" 2 "Não" 2> /tmp/configure
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --radiolist "Deseja configurar o backup do banco $DATABASE?" 10 50 2 1 "Sim" off 2 "Não" on 2> /tmp/configure
         CONFIGURE=$(cat /tmp/configure)
         rm /tmp/configure
 
         if [ "$CONFIGURE" = "1" ]; then
-            # Chama a função para garantir que a senha seja válida
-            request_password "$DATABASE" "$INSTANCE_NAME"
+            # Form para credenciais do tenant
+            exec 3>&1
+            VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.1" --form "Credenciais para $DATABASE:" 15 50 0 \
+                "Usuário:" 1 1 "SYSTEM" 1 20 30 0 \
+                "Senha:" 2 1 "" 2 20 30 0 \
+                2>&1 1>&3)
+            exec 3>&-
+            
+            DB_USER_TENANT=$(echo "$VALUES" | sed -n '1p')
+            DB_PASSWORD_TENANT=$(echo "$VALUES" | sed -n '2p')
 
             # Configura os hdbuserstores
-            handle_hdbuserstore "$HDBUSERSTORE_NAME" "$HOSTNAME" "$PORT" "$DATABASE" "$DB_USER" "$DB_PASSWORD" "$USERNAME_LINUX"
+            handle_hdbuserstore "SmartSafeOpusTech.$DATABASE" "$HOSTNAME" "$PORT" "$DATABASE" "$DB_USER_TENANT" "$DB_PASSWORD_TENANT" "$USERNAME_LINUX"
 
             # Verifica se o schema SBOCOMMON existe no banco
             check_sbo_query="SELECT 1 FROM SCHEMAS WHERE SCHEMA_NAME = 'SBOCOMMON';"
