@@ -56,9 +56,13 @@ function handle_hdbuserstore {
     # Monta o comando do hdbuserstore
     local hdbuserstore_command="su - $linux_user -c '/hana/shared/NDB/hdbclient/hdbuserstore SET \"$hdbuserstore_name\" $db_host:$db_port@$db_name $db_user \"$db_password\"'"
 
+    log "Montando comando hdbuserstore para $hdbuserstore_name: $hdbuserstore_command"
+
     # Mostra mensagem de waiting
     clear
     dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Configurando hdbuserstore para $hdbuserstore_name..." 3 50
+
+    log "Executando comando hdbuserstore para $hdbuserstore_name"
 
     # Executa o comando para criar ou atualizar o hdbuserstore
     error_output=$(eval "$hdbuserstore_command" 2>&1)
@@ -95,6 +99,7 @@ function handle_hdbuserstore {
     fi
 
     clear
+    log "Configuração e validação concluídas com sucesso para $hdbuserstore_name"
     dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "Configuração e validação concluídas com sucesso para $hdbuserstore_name." 6 60
     rm -f "$sql_file" "$output_file"
     return 0

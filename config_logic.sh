@@ -1,18 +1,26 @@
 # Coleta valores predefinidos
+log "Iniciando coleta de parâmetros do sistema"
 HOSTNAME=$(hostname)
+log "Hostname detectado: $HOSTNAME"
 INSTANCE_NAME=$(ls -d /hana/shared/*/ | grep -oP '(?<=/hana/shared/)[A-Z]{3}(?=/)')
+log "Nome da instância detectado: $INSTANCE_NAME"
 INSTANCE_NUMBER=$(ls -d /hana/shared/"$INSTANCE_NAME"/HDB*/ | grep -oP '(?<=HDB)[0-9]{2}')
+log "Número da instância detectado: $INSTANCE_NUMBER"
 DATABASE=SYSTEMDB
+log "Banco padrão: $DATABASE"
 
 # Cria ou atualiza a entrada do hdbuserstore para o SYSTEMDB
 HDBUSERSTORE_NAME="SmartSafeOpusTech.$DATABASE"
+log "Nome do hdbuserstore para SYSTEMDB: $HDBUSERSTORE_NAME"
 
 # Solicitação de confirmação ****************************************************************************************************************
 if dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --yesno "\Zb\Z4Este é o assistente gratuito para backup de SAP HANA da OpusTech.\nDesenvolvido para auxiliar na manutenção dos backups de ambientes que utilizam banco de dados HANA, como SAP Business One, S/4 HANA, ECC on HANA, entre outros.\n\nEste script é distribuído gratuitamente pela equipe de DBA's da OpusTech, para facilitar a administração, melhorar a disponibilidade e a resiliência de um dos sistemas mais críticos de uma organização: o seu ERP.\n\n\Z1A utilização deste script não implica em qualquer responsabilidade ou ônus para a OpusTech e seus especialistas. Não há garantia de integridade dos dados gerados nem de sua recuperabilidade.\n\nÉ imprescindível que outros fatores sejam considerados, como: Persistência dos dados em mais locais; Testes periódicos dos backups; Acompanhamento da correta execução do processo.\n\n\Z0Versão 2.2 - 04/01/2026\n\n\Z4Você concorda com os termos acima e deseja continuar?" 30 90; then
+    log "Usuário concordou com os termos, iniciando configuração"
     echo -e "${GREEN}Iniciando SmartSafeHanaOpusCloud: ${NC}"
     # Continue o script
     sleep 0
 else
+    log "Usuário não concordou com os termos, encerrando script"
     echo -e "${RED}Você optou por não concordar. O script será encerrado.${NC}"
     exit 1
 fi
