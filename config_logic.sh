@@ -12,7 +12,8 @@ echo -e "${PURPLE}Você concorda com os termos acima e deseja continuar?${NC}"
 echo
 echo -e "${GREEN}[s] Sim${NC} | ${RED}[n] Não${NC}"
 echo
-read -p "--->    " user_choice
+echo -n "--->    "
+read user_choice
 echo
 if [[ "$user_choice" =~ ^[sS]$ ]]; then
     echo -e "${GREEN}Iniciando SmartSafeHanaOpusCloud: ${NC}"
@@ -38,26 +39,31 @@ echo
 echo -e "${GREEN}[s] Sim${NC} | ${RED}[n] Não${NC}"
 echo
 # Solicita confirmação do usuário para os valores coletados *******************************************************************************************************
-read -p "--->    " USE_PREDEFINED
+echo -n "--->    "
+read USE_PREDEFINED
 while [[ ! "$USE_PREDEFINED" =~ ^[sSnN]$ ]]; do
     echo -e "${PURPLE}Por favor, responda com 's' ou 'n': ${NC}"
-    read -p "--->    " USE_PREDEFINED
+    echo -n "--->    "
+    read USE_PREDEFINED
 done
 echo
 if [[ "$USE_PREDEFINED" =~ ^[nN]$ ]]; then
     echo -e "${PURPLE}Informe o hostname do servidor [default: $HOSTNAME]: ${NC}"
-    read -p "--->    " HOSTNAME
+    echo -n "--->    "
+    read HOSTNAME
     HOSTNAME=${HOSTNAME:-$(hostname)}
 
     echo -e "${PURPLE}Informe o número da instância [default: $INSTANCE_NUMBER]: ${NC}"
-    read -p "--->    " INSTANCE_NUMBER
+    echo -n "--->    "
+    read INSTANCE_NUMBER
     INSTANCE_NUMBER=${INSTANCE_NUMBER:-00}
     validate_instance_number "$INSTANCE_NUMBER"
 
     PORT="3${INSTANCE_NUMBER}13"
 
     echo -e "${PURPLE}Informe o nome da instância [default: $INSTANCE_NAME]: ${NC}"
-    read -p "--->    " INSTANCE_NAME
+    echo -n "--->    "
+    read INSTANCE_NAME
     INSTANCE_NAME=${INSTANCE_NAME:-HDB}
     validate_instance_name "$INSTANCE_NAME"
 else
@@ -106,10 +112,12 @@ HDBUSERSTORE_NAMES=()
 
 # Validação para configurar os backups dos tenants *****************************************************************************************************************
 echo -e "${PURPLE}Deseja configurar os backups dos tenants? (s/n) [Nota: os dados da empresa ficam salvos dentro dos tenants]: ${NC}"
-read -p "--->    " CONFIGURE_TENANTS
+echo -n "--->    "
+read CONFIGURE_TENANTS
 while [[ ! "$CONFIGURE_TENANTS" =~ ^[sSnN]$ ]]; do
     echo -e "${PURPLE}Por favor, responda com 's' ou 'n': ${NC}"
-    read -p "--->    " CONFIGURE_TENANTS
+    echo -n "--->    "
+    read CONFIGURE_TENANTS
 done
 
 if [[ "$CONFIGURE_TENANTS" =~ ^[sS]$ ]]; then
@@ -125,7 +133,8 @@ if [[ "$CONFIGURE_TENANTS" =~ ^[sS]$ ]]; then
         CONFIGURE="s"
         while [[ ! "$CONFIGURE" =~ ^[sSnN]$ ]]; do
             echo -e "${PURPLE}Deseja configurar o backup do banco $DATABASE? (s/n): ${NC}"
-            read -p "--->    " CONFIGURE
+            echo -n "--->    "
+            read CONFIGURE
         done
         echo
 

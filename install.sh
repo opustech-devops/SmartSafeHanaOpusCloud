@@ -4,7 +4,7 @@
 
 set -e
 REPO_URL="https://github.com/opustech-devops/SmartSafeHanaOpusCloud.git"
-INSTALL_DIR="/opt/smartsafehana"
+INSTALL_DIR="/usr/sap/SmartSafeHanaOpusCloud"
 BIN_LINK="/usr/local/bin/smartsafehana"
 
 
@@ -34,6 +34,7 @@ else
   fi
   unzip -q "$TMP_DIR/main.zip" -d "$TMP_DIR"
   sudo rm -rf "$INSTALL_DIR"
+  sudo mkdir -p "/usr/sap"
   sudo mv "$TMP_DIR/SmartSafeHanaOpusCloud-main" "$INSTALL_DIR"
   sudo rm -rf "$TMP_DIR"
 fi
