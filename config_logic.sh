@@ -36,7 +36,7 @@ if [ "$USE_PREDEFINED" = "2" ]; then
         "\ZbNome da Instância:" 2 1 "$INSTANCE_NAME" 2 20 35 0 \
         "\ZbNúmero da Instância:" 3 1 "$INSTANCE_NUMBER" 3 20 35 0 \
         "\ZbUsuário SYSTEMDB:" 4 1 "SYSTEM" 4 20 35 0 \
-        "\ZbSenha SYSTEMDB:" 5 1 "" 5 20 35 1 \
+        "\ZbSenha SYSTEMDB:" 5 1 "" 5 20 35 0 \
         2>&1 1>&3)
     exec 3>&-
     
@@ -57,7 +57,7 @@ else
     exec 3>&1
     VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --form "\Zb\Z4Insira as credenciais do SYSTEMDB:" 17 55 0 \
         "\ZbUsuário SYSTEMDB:" 1 1 "SYSTEM" 1 20 30 0 \
-        "\ZbSenha SYSTEMDB:" 2 1 "" 2 20 30 1 \
+        "\ZbSenha SYSTEMDB:" 2 1 "" 2 20 30 0 \
         2>&1 1>&3)
     exec 3>&-
     
@@ -122,7 +122,7 @@ if [ "$CONFIGURE_TENANTS" = "1" ]; then
             exec 3>&1
             VALUES=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --form "\Zb\Z4Credenciais para $DATABASE:" 17 55 0 \
                 "\ZbUsuário:" 1 1 "SYSTEM" 1 20 30 0 \
-                "\ZbSenha:" 2 1 "" 2 20 30 1 \
+                "\ZbSenha:" 2 1 "" 2 20 30 0 \
                 2>&1 1>&3)
             exec 3>&-
             
