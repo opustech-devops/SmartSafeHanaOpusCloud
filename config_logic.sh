@@ -148,14 +148,16 @@ if [[ "$CONFIGURE_TENANTS" =~ ^[sS]$ ]]; then
                 # Executa query para pegar os nomes das bases no SBOCOMMON.SRGC
                 select_db_query="SELECT \"dbName\" FROM SBOCOMMON.SRGC;"
                 db_names=$(execute_sql "SmartSafeOpusTech.$DATABASE" "$select_db_query" "$USERNAME_LINUX")
+                # Limpar espaços e quebras de linha
+                db_names_clean=$(echo "$db_names" | tr -d '\n' | tr -s ' ' | sed 's/^ *//;s/ *$//')
                 echo
                 echo -e "${BLUE}As seguintes empresas foram encontradas e serão exportadas:${NC}"
-                echo "$db_names"
+                echo "$db_names_clean" | tr ' ' '\n'
                 echo
 
                 # Usar todas as empresas encontradas
-                eval "DATABASES_TO_BACKUP_$DATABASE=($db_names)"
-                echo "DB_NAMES_$DATABASE=\"$db_names\""
+                eval "DATABASES_TO_BACKUP_$DATABASE=($db_names_clean)"
+                echo "DB_NAMES_$DATABASE=\"$db_names_clean\""
             fi
 
              eval "echo As bases selecionadas para backup são: \${DATABASES_TO_BACKUP_$DATABASE[@]}"

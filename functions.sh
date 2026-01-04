@@ -57,7 +57,6 @@ function handle_hdbuserstore {
         # Monta o comando do hdbuserstore
         echo
         local hdbuserstore_command="su - $linux_user -c 'hdbuserstore SET \"$hdbuserstore_name\" $db_host:$db_port@$db_name $db_user \"$db_password\"'"
-        echo "Executando: su - $linux_user -c 'hdbuserstore SET \"$hdbuserstore_name\" $db_host:$db_port@$db_name $db_user [PASSWORD]'"
 
         # Executa o comando para criar ou atualizar o hdbuserstore
         if ! eval "$hdbuserstore_command" > /dev/null 2>&1; then
