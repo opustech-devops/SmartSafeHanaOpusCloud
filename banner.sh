@@ -1,5 +1,4 @@
 # Desenho da nuvem em ASCII
-clear
 echo -e "${PURPLE}           .--.    "
 echo -e "        .-(    ).  ${NC}"
 echo -e "${WHITE}       (___.__)__) ${NC}  ${PURPLE}  OPUS ${WHITE}CLOUD ${NC}"

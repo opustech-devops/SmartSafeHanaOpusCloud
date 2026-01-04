@@ -10,7 +10,7 @@ if ! command -v dialog &> /dev/null; then
 fi
 
 # Incluir constantes
-source "/usr/sap/SmartSafeHanaOpusCloud/constants.sh"
+source "./constants.sh"
 
 # Incluir funções
 source "/usr/sap/SmartSafeHanaOpusCloud/functions.sh"
@@ -19,16 +19,16 @@ source "/usr/sap/SmartSafeHanaOpusCloud/functions.sh"
 source "/usr/sap/SmartSafeHanaOpusCloud/banner.sh"
 
 # Lógica de configuração principal
-source "/usr/sap/SmartSafeHanaOpusCloud/config_logic.sh"
+source "./config_logic.sh"
 
 # Configuração de caminhos
-source "/usr/sap/SmartSafeHanaOpusCloud/path_config.sh"
+source "./path_config.sh"
 
 # Configuração de cópia
-source "/usr/sap/SmartSafeHanaOpusCloud/copy_config.sh"
+source "./copy_config.sh"
 
 # Configuração de email
-source "/usr/sap/SmartSafeHanaOpusCloud/email_config.sh"
+source "./email_config.sh"
 
 # Geração do script agendado e agendamento
-source "/usr/sap/SmartSafeHanaOpusCloud/scheduled_gen.sh"
+source "./scheduled_gen.sh"

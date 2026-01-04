@@ -53,51 +53,51 @@ function handle_hdbuserstore {
     local db_password=$6
     local linux_user=$7
 
-    while true; do
-        # Monta o comando do hdbuserstore
-        echo
-        local hdbuserstore_command="su - $linux_user -c 'hdbuserstore SET \"$hdbuserstore_name\" $db_host:$db_port@$db_name $db_user \"$db_password\"'"
+    # Monta o comando do hdbuserstore
+    local hdbuserstore_command="su - $linux_user -c '/hana/shared/NDB/hdbclient/hdbuserstore SET \"$hdbuserstore_name\" $db_host:$db_port@$db_name $db_user \"$db_password\"'"
 
-        # Executa o comando para criar ou atualizar o hdbuserstore
-        if ! eval "$hdbuserstore_command" > /dev/null 2>&1; then
-            echo
-            echo -e "${RED}Erro ao executar hdbuserstore para $hdbuserstore_name. Verifique os dados fornecidos.${NC}"
-            echo
-            continue
-        fi
-        echo -e "${GREEN}hdbuserstore configurado com sucesso para $hdbuserstore_name.${NC}"
+    # Mostra mensagem de waiting
+    clear
+    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Configurando hdbuserstore para $hdbuserstore_name..." 3 50
 
-        # Validação da senha
-        echo
-        echo -e "${BLUE}Validando a senha para $hdbuserstore_name...${NC}"
-        local validation_query="SELECT 1 FROM DUMMY;"
-        local sql_file=$(mktemp)
-        local output_file=$(mktemp)
-        echo "$validation_query" > "$sql_file"
-        chmod 777 "$sql_file" "$output_file"
-        local validation_command="su - $linux_user -c 'hdbsql -U \"$hdbuserstore_name\" -I \"$sql_file\" -o \"$output_file\"'"
-        if ! eval "$validation_command" > /dev/null 2>&1; then
-            echo
-            echo -e "${RED}Falha na validação da senha para $hdbuserstore_name. Por favor, insira as credenciais novamente.${NC}"
-            echo
-            rm -f "$sql_file" "$output_file"
-            return 1  # Indica falha para solicitar nova senha
-        fi
+    # Executa o comando para criar ou atualizar o hdbuserstore
+    error_output=$(eval "$hdbuserstore_command" 2>&1)
+    if [ $? -ne 0 ]; then
+        clear
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Erro ao executar hdbuserstore para $hdbuserstore_name.\nErro: $error_output" 8 80
+        return 1
+    fi
 
-        # Verifica se há erro no output
-        if grep -qi "authentication failed\|error" "$output_file"; then
-            echo
-            echo -e "${RED}Falha na validação da senha para $hdbuserstore_name. Por favor, insira as credenciais novamente.${NC}"
-            echo
-            rm -f "$sql_file" "$output_file"
-            return 1
-        fi
-
-        echo
-        echo -e "${GREEN}Senha validada com sucesso para $hdbuserstore_name.${NC}"
+    # Validação da senha
+    clear
+    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Validando a senha para $hdbuserstore_name..." 5 50
+    local validation_query="SELECT 1 FROM DUMMY;"
+    local sql_file=$(mktemp)
+    local output_file=$(mktemp)
+    echo "$validation_query" > "$sql_file"
+    chmod 777 "$sql_file" "$output_file"
+    local validation_command="su - $linux_user -c '/hana/shared/NDB/hdbclient/hdbsql -U \"$hdbuserstore_name\" -I \"$sql_file\" -o \"$output_file\"'"
+    validation_error=$(eval "$validation_command" 2>&1)
+    if [ $? -ne 0 ]; then
+        clear
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Falha na validação da senha para $hdbuserstore_name.\nErro: $validation_error" 10 80
         rm -f "$sql_file" "$output_file"
-        return 0
-    done
+        return 1  # Indica falha para solicitar nova senha
+    fi
+
+    # Verifica se há erro no output
+    if grep -qi "authentication failed\|error" "$output_file"; then
+        output_content=$(cat "$output_file")
+        clear
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Falha na validação da senha para $hdbuserstore_name.\nConteúdo do output: $output_content" 10 80
+        rm -f "$sql_file" "$output_file"
+        return 1
+    fi
+
+    clear
+    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "Configuração e validação concluídas com sucesso para $hdbuserstore_name." 6 60
+    rm -f "$sql_file" "$output_file"
+    return 0
 }
 
 # Função para solicitar e validar a senha
