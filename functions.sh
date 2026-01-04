@@ -54,7 +54,13 @@ function handle_hdbuserstore {
     local linux_user=$7
 
     # Monta o comando do hdbuserstore
-    local hdbuserstore_command="su - $linux_user -c '/hana/shared/NDB/hdbclient/hdbuserstore SET \"$hdbuserstore_name\" $db_host:$db_port@$db_name $db_user \"$db_password\"'"
+    local env
+    if [[ "$db_name" == "SYSTEMDB" ]]; then
+        env="$db_host:$db_port"
+    else
+        env="$db_host:$db_port@$db_name"
+    fi
+    local hdbuserstore_command="su - $linux_user -c '/hana/shared/NDB/hdbclient/hdbuserstore SET \"$hdbuserstore_name\" \"$env\" \"$db_user\" \"$db_password\"'"
 
     log "Montando comando hdbuserstore para $hdbuserstore_name: $hdbuserstore_command"
 
