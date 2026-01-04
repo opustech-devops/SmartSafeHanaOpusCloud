@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script principal refatorado para SmartSafeOpusCloud
+# Script principal refatorado para SmartSafeHanaOpusCloud
 # Inclui todos os módulos necessários
 
 # Incluir constantes

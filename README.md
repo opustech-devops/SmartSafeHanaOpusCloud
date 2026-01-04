@@ -1,4 +1,4 @@
-# SmartSafeOpusCloud - Refatorado
+# SmartSafeHanaOpusCloud - Refatorado
 
 Este projeto foi refatorado em módulos para melhor organização e manutenção.
 
@@ -19,13 +19,13 @@ Este projeto foi refatorado em módulos para melhor organização e manutenção
 Execute o script principal:
 
 ```bash
-bash SmartSafeOpusCloud_configure.sh
+bash SmartSafeHanaOpusCloud_configure.sh
 ```
 
 Ou diretamente na pasta:
 
 ```bash
-cd /root/SmartSafeOpusCloud/
+cd /root/SmartSafeHanaOpusCloud/
 bash main.sh
 ```
 

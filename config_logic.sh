@@ -15,7 +15,7 @@ echo
 read -p "--->    " user_choice
 echo
 if [[ "$user_choice" =~ ^[sS]$ ]]; then
-    echo -e "${GREEN}Iniciando SmartSafeOpusCloud: ${NC}"
+    echo -e "${GREEN}Iniciando SmartSafeHanaOpusCloud: ${NC}"
     # Continue o script
     sleep 0
 else
