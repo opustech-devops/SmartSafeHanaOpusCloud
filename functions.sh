@@ -106,21 +106,16 @@ function request_password {
     local instance_name=$2
     while true; do
         # Solicita usuário do banco
-        echo -e "${PURPLE}Informe o usuário do $db_name [default: SYSTEM]: ${NC}"
-        read -p "--->    " db_user
-        db_user=${db_user:-SYSTEM}
+        db_user=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o usuário do $db_name" 10 50 "SYSTEM" 2>&1)
         echo
         local linux_user=$(echo "${instance_name,,}adm")
         # Solicita a senha
-        echo -e "${PURPLE}Informe a senha do $db_name: ${NC}"
-        stty -echo
-        read -p "--->    " db_password
-        stty echo
+        db_password=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --passwordbox "Informe a senha do $db_name" 10 50 2>&1)
         echo
 
         # Verifica se a senha está em branco
         if [[ -z "$db_password" ]]; then
-            echo -e "${RED}Erro: A senha não pode estar em branco. Por favor, forneça uma senha válida.${NC}"
+            dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --msgbox "Erro: A senha não pode estar em branco. Por favor, forneça uma senha válida." 10 50
         else
             # Retornar valores via variáveis globais ou echo
             DB_USER=$db_user

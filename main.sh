@@ -3,6 +3,12 @@
 # Script principal refatorado para SmartSafeHanaOpusCloud
 # Inclui todos os módulos necessários
 
+# Verificar e instalar dialog se necessário
+if ! command -v dialog &> /dev/null; then
+    echo "Instalando dialog para interface gráfica..."
+    zypper install -y dialog
+fi
+
 # Incluir constantes
 source "/usr/sap/SmartSafeHanaOpusCloud/constants.sh"
 

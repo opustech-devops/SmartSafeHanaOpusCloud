@@ -8,14 +8,7 @@ DATABASE=SYSTEMDB
 HDBUSERSTORE_NAME="SmartSafeOpusTech.$DATABASE"
 
 # Solicitação de confirmação ****************************************************************************************************************
-echo -e "${PURPLE}Você concorda com os termos acima e deseja continuar?${NC}"
-echo
-echo -e "${GREEN}[s] Sim${NC} | ${RED}[n] Não${NC}"
-echo
-echo -n "--->    "
-read user_choice
-echo
-if [[ "$user_choice" =~ ^[sS]$ ]]; then
+if dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --yesno "Você concorda com os termos acima e deseja continuar?" 10 50; then
     echo -e "${GREEN}Iniciando SmartSafeHanaOpusCloud: ${NC}"
     # Continue o script
     sleep 0
@@ -27,47 +20,22 @@ fi
 # Valida os valores coletados
 validate_instance_name "$INSTANCE_NAME"
 validate_instance_number "$INSTANCE_NUMBER"
-echo
-echo -e "${BLUE}Identificamos automaticamente os seguintes dados nesse servidor.${NC}"
-echo
-echo -e "${BLUE}Hostname                ${GREEN}$HOSTNAME${NC}"
-echo -e "${BLUE}Nome da instância       ${GREEN}$INSTANCE_NAME${NC}"
-echo -e "${BLUE}Número da instância     ${GREEN}$INSTANCE_NUMBER${NC}"
-echo
-echo -e "${PURPLE}Deseja usar esses valores? (s/n):${NC}"
-echo
-echo -e "${GREEN}[s] Sim${NC} | ${RED}[n] Não${NC}"
-echo
+dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --msgbox "Identificamos automaticamente os seguintes dados nesse servidor.\n\nHostname: $HOSTNAME\nNome da instância: $INSTANCE_NAME\nNúmero da instância: $INSTANCE_NUMBER" 12 50
+
 # Solicita confirmação do usuário para os valores coletados *******************************************************************************************************
-echo -n "--->    "
-read USE_PREDEFINED
-while [[ ! "$USE_PREDEFINED" =~ ^[sSnN]$ ]]; do
-    echo -e "${PURPLE}Por favor, responda com 's' ou 'n': ${NC}"
-    echo -n "--->    "
-    read USE_PREDEFINED
-done
+dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --menu "Deseja usar esses valores?" 10 50 2 1 "Sim" 2 "Não" 2> /tmp/use_predefined
+USE_PREDEFINED=$(cat /tmp/use_predefined)
+rm /tmp/use_predefined
 echo
-if [[ "$USE_PREDEFINED" =~ ^[nN]$ ]]; then
-    echo -e "${PURPLE}Informe o hostname do servidor [default: $HOSTNAME]: ${NC}"
-    echo -n "--->    "
-    read HOSTNAME
-    HOSTNAME=${HOSTNAME:-$(hostname)}
-
-    echo -e "${PURPLE}Informe o número da instância [default: $INSTANCE_NUMBER]: ${NC}"
-    echo -n "--->    "
-    read INSTANCE_NUMBER
-    INSTANCE_NUMBER=${INSTANCE_NUMBER:-00}
-    validate_instance_number "$INSTANCE_NUMBER"
-
+if [ "$USE_PREDEFINED" = "1" ]; then
     PORT="3${INSTANCE_NUMBER}13"
-
-    echo -e "${PURPLE}Informe o nome da instância [default: $INSTANCE_NAME]: ${NC}"
-    echo -n "--->    "
-    read INSTANCE_NAME
-    INSTANCE_NAME=${INSTANCE_NAME:-HDB}
-    validate_instance_name "$INSTANCE_NAME"
 else
+    HOSTNAME=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o hostname do servidor" 10 50 "$HOSTNAME" 2>&1)
+    INSTANCE_NUMBER=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o número da instância" 10 50 "$INSTANCE_NUMBER" 2>&1)
+    validate_instance_number "$INSTANCE_NUMBER"
     PORT="3${INSTANCE_NUMBER}13"
+    INSTANCE_NAME=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o nome da instância" 10 50 "$INSTANCE_NAME" 2>&1)
+    validate_instance_name "$INSTANCE_NAME"
 fi
 
 # Chama a função para garantir que a senha seja válida
@@ -111,34 +79,20 @@ echo
 HDBUSERSTORE_NAMES=()
 
 # Validação para configurar os backups dos tenants *****************************************************************************************************************
-echo -e "${PURPLE}Deseja configurar os backups dos tenants? (s/n) [Nota: os dados da empresa ficam salvos dentro dos tenants]: ${NC}"
-echo -n "--->    "
-read CONFIGURE_TENANTS
-while [[ ! "$CONFIGURE_TENANTS" =~ ^[sSnN]$ ]]; do
-    echo -e "${PURPLE}Por favor, responda com 's' ou 'n': ${NC}"
-    echo -n "--->    "
-    read CONFIGURE_TENANTS
-done
+dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --menu "Deseja configurar os backups dos tenants? (Nota: os dados da empresa ficam salvos dentro dos tenants)" 12 60 2 1 "Sim" 2 "Não" 2> /tmp/configure_tenants
+CONFIGURE_TENANTS=$(cat /tmp/configure_tenants)
+rm /tmp/configure_tenants
 
-if [[ "$CONFIGURE_TENANTS" =~ ^[sS]$ ]]; then
+if [ "$CONFIGURE_TENANTS" = "1" ]; then
     # Solicita configuração do backup para cada banco de dados
     IFS=$'\n' read -rd '' -a DATABASE_ARRAY <<<"$DATABASE_LIST"
     for DATABASE in "${DATABASE_ARRAY[@]}"; do
         DATABASE=$(echo "$DATABASE" | xargs) # Remove espaços em branco
-        echo
-        echo -e "${BLUE}Processando banco de dados: $DATABASE${NC}"
-        HDBUSERSTORE_NAME="SmartSafeOpusTech.$DATABASE"
-        echo
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --menu "Deseja configurar o backup do banco $DATABASE?" 10 50 2 1 "Sim" 2 "Não" 2> /tmp/configure
+        CONFIGURE=$(cat /tmp/configure)
+        rm /tmp/configure
 
-        CONFIGURE="s"
-        while [[ ! "$CONFIGURE" =~ ^[sSnN]$ ]]; do
-            echo -e "${PURPLE}Deseja configurar o backup do banco $DATABASE? (s/n): ${NC}"
-            echo -n "--->    "
-            read CONFIGURE
-        done
-        echo
-
-        if [[ "$CONFIGURE" =~ ^[sS]$ ]]; then
+        if [ "$CONFIGURE" = "1" ]; then
             # Chama a função para garantir que a senha seja válida
             request_password "$DATABASE" "$INSTANCE_NAME"
 
