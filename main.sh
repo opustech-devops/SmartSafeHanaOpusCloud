@@ -4,12 +4,13 @@
 # Inclui todos os módulos necessários
 
 # Logging setup
-if [ -f "./last_execution.log" ]; then
-    mv "./last_execution.log" "./last_execution_$(date +%Y%m%d_%H%M%S).log"
+mkdir -p /usr/sap/SmartSafeHanaOpusCloud
+if [ -f "/usr/sap/SmartSafeHanaOpusCloud/last_execution.log" ]; then
+    mv "/usr/sap/SmartSafeHanaOpusCloud/last_execution.log" "/usr/sap/SmartSafeHanaOpusCloud/last_execution_$(date +%Y%m%d_%H%M%S).log"
 fi
 
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $*" >> ./last_execution.log
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $*" >> /usr/sap/SmartSafeHanaOpusCloud/last_execution.log
 }
 
 log "Iniciando SmartSafeHanaOpusCloud v2.2"
