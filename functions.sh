@@ -113,7 +113,10 @@ function request_password {
         local linux_user=$(echo "${instance_name,,}adm")
         # Solicita a senha
         echo -e "${PURPLE}Informe a senha do $db_name: ${NC}"
+        stty -echo
         read -p "--->    " db_password
+        stty echo
+        echo
 
         # Verifica se a senha está em branco
         if [[ -z "$db_password" ]]; then
