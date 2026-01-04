@@ -1,0 +1,35 @@
+# Desenho da nuvem em ASCII
+clear
+echo -e "${PURPLE}           .--.    "
+echo -e "        .-(    ).  ${NC}"
+echo -e "${WHITE}       (___.__)__) ${NC}  ${PURPLE}  OPUS ${WHITE}CLOUD ${NC}"
+echo -e "${PURPLE}      ${NC}"
+
+# Exibição do disclaimer
+
+echo -e "${CYAN}=============================================================================${NC}"
+echo -e "${BLUE}                         ----- Seja Bem-Vindo! -----                         ${NC}"
+echo -e "${CYAN}=============================================================================${NC}"
+echo -e "${GREEN} Este é o assistente gratuito para backup de SAP HANA da OpusTech.${NC}"
+echo -e "${GREEN} Desenvolvido para auxiliar na manutenção dos backups de ambientes${NC}"
+echo -e "${GREEN} que utilizam banco de dados HANA, como:${NC}"
+echo -e "${YELLOW} - SAP Business One${NC}"
+echo -e "${YELLOW} - S/4 HANA${NC}"
+echo -e "${YELLOW} - ECC on HANA, entre outros.${NC}"
+echo -e "${GREEN} Este script é distribuído gratuitamente pela equipe de DBA's da OpusTech,${NC}"
+echo -e "${GREEN} para facilitar a administração, melhorar a disponibilidade e a resiliência${NC}"
+echo -e "${GREEN} de um dos sistemas mais críticos de uma organização: o seu ERP.${NC}"
+echo -e "${CYAN}=============================================================================${NC}"
+echo -e "${RED}                              --- Aviso ---                                 ${NC}"
+echo -e "${CYAN}=============================================================================${NC}"
+echo -e "${YELLOW} A utilização deste script não implica em qualquer responsabilidade ou ônus${NC}"
+echo -e "${YELLOW} para a OpusTech e seus especialistas. Não há garantia de integridade dos${NC}"
+echo -e "${YELLOW} dados gerados nem de sua recuperabilidade.${NC}"
+echo -e "${YELLOW} É imprescindível que outros fatores sejam considerados, como:${NC}"
+echo -e "${YELLOW} - Persistência dos dados em mais locais;${NC}"
+echo -e "${YELLOW} - Testes periódicos dos backups;${NC}"
+echo -e "${YELLOW} - Acompanhamento da correta execução do processo.${NC}"
+echo -e "${CYAN}=============================================================================${NC}"
+echo -e "${BLUE}                     ----- Versão 1.0 - 09/10/2025 -----                     ${NC}"
+echo -e "${CYAN}=============================================================================${NC}"
+echo
