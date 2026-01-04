@@ -70,8 +70,21 @@ done
 # Define um array para armazenar os nomes do hdbuserstore
 HDBUSERSTORE_NAMES=()
 
+log "Detectando databases tenants..."
+DATABASE_LIST=$(execute_sql "$HDBUSERSTORE_NAME" "SELECT DATABASE_NAME FROM M_DATABASES WHERE DATABASE_NAME != 'SYSTEMDB';" "$USERNAME_LINUX")
+log "Databases tenants detectados: $DATABASE_LIST"
+
 # Configura backups para tenants
 IFS=$'\n' read -rd '' -a DATABASE_ARRAY <<<"$DATABASE_LIST"
+for DATABASE in "${DATABASE_ARRAY[@]}"; do
+    DATABASE=$(echo "$DATABASE" | xargs) # Remove espaços em branco
+
+    # Configura os hdbuserstores para o tenant
+    if ! handle_hdbuserstore "SmartSafeOpusTech.$DATABASE" "$HOSTNAME" "$PORT" "$DATABASE" "$TENANT_USER" "$TENANT_PASSWORD" "$USERNAME_LINUX"; then
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "Falha na configuração do hdbuserstore para $DATABASE. Verifique as credenciais." 7 60
+        exit 1
+    fi
+    log "Configuração e validação concluídas com sucesso para SmartSafeOpusTech.$DATABASE"
 for DATABASE in "${DATABASE_ARRAY[@]}"; do
     DATABASE=$(echo "$DATABASE" | xargs) # Remove espaços em branco
 

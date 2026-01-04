@@ -144,7 +144,7 @@ function execute_sql {
     chmod 777 "$sql_file" "$output_file" || error_exit "Falha ao configurar permissões nos arquivos temporários."
 
     # Executa o comando SQL com hdbsql
-    local hdbsql_command="su - $linux_user -c 'hdbsql -U \"$hdbuserstore\" -x -A -F \" \" -a -m -I \"$sql_file\" -o \"$output_file\"'"
+    local hdbsql_command="su - $linux_user -c 'hdbsql -q -U \"$hdbuserstore\" -x -A -F \" \" -a -m -I \"$sql_file\" -o \"$output_file\"'"
     if ! eval "$hdbsql_command"; then
         error_exit "Falha ao executar o comando SQL. Verifique o comando e os logs."
     fi
