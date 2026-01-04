@@ -66,7 +66,7 @@ function handle_hdbuserstore {
 
     # Mostra mensagem de waiting
     clear
-    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Configurando hdbuserstore para $hdbuserstore_name..." 3 50
+    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Configurando hdbuserstore para $hdbuserstore_name..." 3 100
 
     log "Executando comando hdbuserstore para $hdbuserstore_name"
 
@@ -74,13 +74,13 @@ function handle_hdbuserstore {
     error_output=$(eval "$hdbuserstore_command" 2>&1)
     if [ $? -ne 0 ]; then
         clear
-        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Erro ao executar hdbuserstore para $hdbuserstore_name.\nErro: $error_output" 8 80
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Erro ao executar hdbuserstore para $hdbuserstore_name.\nErro: $error_output" 8 100
         return 1
     fi
 
     # Validação da senha
     clear
-    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Validando a senha para $hdbuserstore_name..." 5 50
+    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --infobox "Validando a senha para $hdbuserstore_name..." 5 100
     local validation_query="SELECT 1 FROM DUMMY;"
     local sql_file=$(mktemp)
     local output_file=$(mktemp)
@@ -90,7 +90,7 @@ function handle_hdbuserstore {
     validation_error=$(eval "$validation_command" 2>&1)
     if [ $? -ne 0 ]; then
         clear
-        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Falha na validação da senha para $hdbuserstore_name.\nErro: $validation_error" 10 80
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Falha na validação da senha para $hdbuserstore_name.\nErro: $validation_error" 10 100
         rm -f "$sql_file" "$output_file"
         return 1  # Indica falha para solicitar nova senha
     fi
@@ -99,14 +99,14 @@ function handle_hdbuserstore {
     if grep -qi "authentication failed\|error" "$output_file"; then
         output_content=$(cat "$output_file")
         clear
-        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Falha na validação da senha para $hdbuserstore_name.\nConteúdo do output: $output_content" 10 80
+        dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "X Falha na validação da senha para $hdbuserstore_name.\nConteúdo do output: $output_content" 10 100
         rm -f "$sql_file" "$output_file"
         return 1
     fi
 
     clear
     log "Configuração e validação concluídas com sucesso para $hdbuserstore_name"
-    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "Configuração e validação concluídas com sucesso para $hdbuserstore_name." 6 60
+    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --msgbox "Configuração e validação concluídas com sucesso para $hdbuserstore_name." 6 100
     rm -f "$sql_file" "$output_file"
     return 0
 }
@@ -117,16 +117,16 @@ function request_password {
     local instance_name=$2
     while true; do
         # Solicita usuário do banco
-        db_user=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o usuário do $db_name" 10 50 "SYSTEM" 2>&1)
+        db_user=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --inputbox "Informe o usuário do $db_name" 10 100 "SYSTEM" 2>&1)
         echo
         local linux_user=$(echo "${instance_name,,}adm")
         # Solicita a senha
-        db_password=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --passwordbox "Informe a senha do $db_name" 10 50 2>&1)
+        db_password=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --passwordbox "Informe a senha do $db_name" 10 100 2>&1)
         echo
 
         # Verifica se a senha está em branco
         if [[ -z "$db_password" ]]; then
-            dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --msgbox "Erro: A senha não pode estar em branco. Por favor, forneça uma senha válida." 10 50
+            dialog --backtitle "SmartSafeHanaOpusCloud v2.0" --msgbox "Erro: A senha não pode estar em branco. Por favor, forneça uma senha válida." 10 100
         else
             # Retornar valores via variáveis globais ou echo
             DB_USER=$db_user

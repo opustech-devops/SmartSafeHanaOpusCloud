@@ -34,7 +34,7 @@ EMAIL_PASSWORD=$(echo "$VALUES" | sed -n '9p')
 
 # Reconfigure if path changed
 if [ "$BACKUP_PATH" != "$DATA_BACKUP_PATH" ]; then
-    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --yesno "O caminho de backup foi alterado. Deseja reconfigurar o HANA?" 7 50
+    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --yesno "O caminho de backup foi alterado. Deseja reconfigurar o HANA?" 7 100
     if [ $? -eq 0 ]; then
         execute_sql "SmartSafeOpusTech.SYSTEMDB" "ALTER SYSTEM ALTER CONFIGURATION ('global.ini', 'SYSTEM') SET ('persistence', 'basepath_databackup') = '$BACKUP_PATH/data' WITH RECONFIGURE;" "$USERNAME_LINUX"
         execute_sql "SmartSafeOpusTech.SYSTEMDB" "ALTER SYSTEM ALTER CONFIGURATION ('global.ini', 'SYSTEM') SET ('persistence', 'basepath_logbackup') = '$BACKUP_PATH/log' WITH RECONFIGURE;" "$USERNAME_LINUX"
@@ -44,6 +44,6 @@ fi
 
 # Lógica baseada nos valores
 if [ "$MOVE_BACKUPS" = "s" ]; then
-    COPY_PATH=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --inputbox "Informe o caminho para copiar o backup:" 10 60 2>&1)
-    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --msgbox "\Zb\Z4O backup será copiado diariamente para o diretório $COPY_PATH.\n\Z1Aviso: Certifique-se de que o caminho de cópia tenha espaço suficiente para os backups." 8 60
+    COPY_PATH=$(dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --inputbox "Informe o caminho para copiar o backup:" 10 100 2>&1)
+    dialog --backtitle "SmartSafeHanaOpusCloud v2.2 - Opus Cloud" --colors --msgbox "\Zb\Z4O backup será copiado diariamente para o diretório $COPY_PATH.\n\Z1Aviso: Certifique-se de que o caminho de cópia tenha espaço suficiente para os backups." 8 100
 fi
